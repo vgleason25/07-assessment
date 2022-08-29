@@ -32,7 +32,7 @@ def __str__(self):
 
 @dataclass
 class HolidayList:
-    inner_holidays = []
+    holidays_list = []
 
  #=============================ADD===========================   
     #def __init__(self): #pretty sure i can get rid of this 
@@ -66,9 +66,9 @@ def add_a_holiday(modify_holidays):
             #holiday_obj.append(new_holiday_date)
          
         #confirm
-        if not any(n['Name'] == add_holiday for n in modify_holidays):
+        if not any(n['Name'] == add_holiday for n in modify_holidays[0]['holidays']):
             print("Don't see any holidays with that name!")
-        elif not any(d['Date'] == add_date for d in modify_holidays):
+        elif not any(d['Date'] == add_date for d in modify_holidays[0]['holidays']):
             print("Don't see any holidays with date!")
         else:
             print('That holiday is already in the Holiday Manager.')
@@ -135,15 +135,19 @@ def remove_a_holiday(modify_holidays):
     while entry == True:
         try:
             entry = bool(datetime.datetime.strptime(date, "%Y-%m-%d"))
+            
         except ValueError:
             print('Error:\nInvalid date. Please enter date in correct YYYY-MM-DD format.')
             remove_a_holiday(modify_holidays)
              
         # Find Holiday in modify_holidays by searching the name and date.
-        mod = [elem for elem in modify_holidays if (elem.get('Name')!= remove_holiday or elem.get('Date')!=remove_date)]
+        #strptime_date = datetime.datetime.strptime(date, "%Y-%m-%d").date()
+        mod = [elem for elem in modify_holidays[0]['holidays'] if (elem['Name']!= remove_holiday or elem['Date']!=remove_date)]
         
-        if mod == modify_holidays:
+        if mod == modify_holidays[0]['holidays']:
             print("Sorry, we dont have {}" .format(remove_holiday) + " on {}" .format(remove_date) + ".")
+            print('We do have:')
+            print(modify_holidays)
             choice = input('\nWould you like to try a different holiday [y/n]?: ')
             #remove = True
             #while remove == True:
@@ -194,15 +198,16 @@ def remove_a_holiday(modify_holidays):
 
 #=============================READ===========================
 def read_json():
+    global inner_holidays
     inner_holidays = []
+    
     # Read in things from json file location
     # Use add_a_holiday function to add holidays to inner list.
     with open("holidays.json") as holijson:
         holidays = json.load(holijson)
         inner_holidays.append(holidays)
         modify_holidays = inner_holidays
-        return
-        
+        main(modify_holidays)
 
 #=============================SAVE===========================
 def save_to_json(modify_holidays):
@@ -240,17 +245,18 @@ def scrapeHolidays():
 
 #=============================COUNT HOLIDAYS ===========================   
 def numHolidays(modify_holidays):
-    modify_holidays = {"holidays": 'holidays'}
+    num = len(modify_holidays[0]['holidays'])
     # len(holiday_list)#? not sure is this is the right thing to check the length of
     # Return the total number of holidays in modify_holidays
-    print("\nWe currently have  holidays listed!\n")
+    print("\nWe currently have {} holidays listed!\n" .format(num))
 
     #=============================VIEW HOLIDAYS=========================== 
 def view_holidays(modify_holidays):
     print("\nView Holidays\n=================\n")
     year = input("Which year?: ")
     week = input("Which week? [1-52, Leave blank for the current week]: ")
-
+    print("\n*This section is under construction. Try again later.*\n")
+    main(modify_holidays)
     # def filter_holidays_by_week(year, week_number):
     #     Use a Lambda function to filter by week number and save this as holidays, use the filter on modify_holidays
     #     Week number is part of the the Datetime object
@@ -280,7 +286,7 @@ def view_holidays(modify_holidays):
 def exit(modify_holidays, inner_holidays):
     exit_now = True
     list_1 = inner_holidays
-    list_2 = modify_holidays
+    list_2 = modify_holidays[0]['holidays']
 
     while exit_now == True:
         for i in list_1:
@@ -310,9 +316,6 @@ def main(modify_holidays):
     # Large Pseudo Code steps
     # -------------------------------------
     # 1. Initialize HolidayList Object
-    inner_holidays = []
-    read_json()    
-    modify_holidays = inner_holidays
     # 2. Load JSON file via HolidayList read_json function
     # 3. Scrape additional holidays using your HolidayList scrapeHolidays function.
     # 3. Create while loop for user to keep adding or working with the Calender
@@ -341,9 +344,8 @@ def main(modify_holidays):
     # 6. Run appropriate method from the HolidayList object depending on what the user input is
     # 7. Ask the User if they would like to Continue, if not, end the while loop, ending the program.  If they do wish to continue, keep the program going. 
 def start():
-    modify_holidays = []
     print("\nWelcome the the Holiday Manager!")
-    main(modify_holidays)
+    read_json()
 
 if __name__ == "__main__":
     start()
