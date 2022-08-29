@@ -1,0 +1,4 @@
+# ignore log files (this is a comment)
+# The '*' matches any text, then '.log', effectively ignoring all log files.
+config.py
+_pycache_
